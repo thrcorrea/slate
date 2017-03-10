@@ -1,189 +1,248 @@
----
-title: API Reference
+# API Recarga Agora
 
-language_tabs:
-  - shell
-  - ruby
-  - python
-  - javascript
+#1. Introdução
+Com a API Recarga Agora é possível gerar recargas para cartões de diversas o operadoras de diversos estados do brasil.
 
-toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
+## 1.1. Comunicação
 
-includes:
-  - errors
+### 1.1.1. JSON sobre HTTPS
+A única forma de comunicação suportada é JSON sobre HTTPS. Os dados devem esta codificados no formato UTF-8. Os headers HTTP devem indicar "Content-Type" como "application/json". O header "Accept" deve ser usado e deve indicar "application/json".
 
-search: true
----
+### 1.1.2. Respostas de Sucesso
+Respostas de sucesso apresentam status HTTP 200, com o corpo da mensagem contendo um objeto JSON no formato especificado para o serviço.
 
-# Introduction
+> Exemplo de mensagem de erro:
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
-
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
-
-This example API documentation page was created with [Slate](https://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
-
-# Authentication
-
-> To authorize, use this code:
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+```json
+{
+  "code": 13,
+  "message": "Não foi possível comunicar com o serviço de Recarga"
+}
 ```
 
-```python
-import kittn
+### 1.1.3. Respostas de Erro
+Respostas que indicam erro podem ser identificadas pelo código de status HTTP 400 (client error) ou 500 (server error). O corpo da resposta de erro sempre contém um código de erro e uma mensagem descrevendo o motivo do erro ter ocorrido. [Tabela de Códigos de erro.](#anexo-a-c-digos-de-erro)
 
-api = kittn.authorize('meowmeowmeow')
+#2. Chamadas da API
+
+##2.1 Issuers
+**Caminho**: `GET <endpoint>/issuers?appId=`
+
+**Descrição**: Retorna os issuers de acordo com o appId provido
+
+>Exemplo de requisição:
+
+```text
+url = <endpoint>/issuers?appId=1
 ```
 
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
+**REQUISIÇÃO**:
 
-```javascript
-const kittn = require('kittn');
+***Path***
 
-let api = kittn.authorize('meowmeowmeow');
-```
+|Campo |Descrição |Formato |Obrigatório |
+|------|----------|:------:|:----------:|
+|**appId**| Id do aplicativo utilizado como referência | Number | Sim |
 
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
-
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
-```
-
-> The above command returns JSON structured like this:
+> Exemplo de resposta:
 
 ```json
 [
   {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
+    "issuer_id": 1,
+    "thumb": "shj8",
+    "name": "TEU",
+    "nr_digits": 15,
+    "checkBalance": true,
+    "mask": "XXXXXXXXXXXXXX-X"
   },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
+  [...]
 ]
 ```
 
-This endpoint retrieves all kittens.
+**RESPOSTA**
 
-### HTTP Request
+|Campo |Descrição |Formato
+|------|----------|:-----:|
+|**issuer_id**| Id do issuer | Integer |
+|**thumb**| Thumbnail | String |
+|**name**| Nome do issuer | String |
+|**nr_digits**| Número de digitos do cartão | Number |
+|**checkBalance**| Valor informando se é possível checar o saldo do cartão | Boolean |
+|**mask**| Mascara do cartão | String |
 
-`GET http://example.com/api/kittens`
+##2.2 Products
+**Caminho**: `GET <endpoint>/issuers/{id}/products`
 
-### Query Parameters
+**Descrição**: Retorna os produtos do Issuer selecionado.
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+> Exemplo de requisição:
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
+```text
+url = <endpoint>/issuers/1/products
 ```
 
-```python
-import kittn
+**REQUISIÇÃO**:
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
+***Path***
+
+|Campo |Descrição |Formato |Obrigatório |
+|------|----------|:------:|:----------:|
+|**id**| Id do Issuer | Integer | Sim |
+
+> Exemplo de resposta:
+
+```json
+[
+  {
+    "id": 2,
+    "name": "Bilhete Personalizado Plus",
+    "thumb": "http://i.imgur.com/id23RN0.png",
+    "color": "#dfc701",
+    "rechargeable": true,
+    "externalId": "2"
+  },
+  [...]
+]
 ```
 
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+**RESPOSTA**
+
+|Campo |Descrição |Formato
+|------|----------|:-----:|
+|**id**| Id do produto | Integer |
+|**name**| Nome do produto | String |
+|**thumb**| Endereço de imagem do produto | String |
+|**color**| Cor do produto | String |
+|**rechargeable**| Valor informando se o produto é recarregável | Boolean |
+|**externalId**| Id externo do produto | Integer |
+
+##2.3 Product Values
+**Caminho**: `GET <endpoint>/issuers/{id}/products/{idProduct}/values`
+
+**Descrição**: Retorna os valores disponíveis para recarga do Produto selecionado.
+
+> Exemplo de requisição:
+
+```text
+url = <endpoint>/issuers/1/products/1/values
 ```
 
-```javascript
-const kittn = require('kittn');
+**REQUISIÇÃO**
 
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
+***Path***
+
+|Campo |Descrição |Formato |Obrigatório |
+|------|----------|:------:|:----------:|
+|**id**| Id do Issuer | Integer | Sim |
+|**idProduct**| Id do Produto | Integer | Sim |
+
+> Exemplo de resposta
+
+```json
+[
+  {
+    "id": 9,
+    "value": 20,
+    "productId": 7,
+    "feeValue": 150
+  },
+  [...]
+]
+```
+**RESPOSTA**
+
+|Campo |Descrição |Formato
+|------|----------|:-----:|
+|**id**| Id do valor | Integer |
+|**value**| Valor de recarga em reais | Number |
+|**productId**| Id do produto | Integer |
+|**feeValue**| Valor da taxa em centavos Ex: "150" para R$1,50. | Number |
+
+##2.4 Valid Card
+**Caminho**: `GET <endpoint>/validateCard?issuerNumber&issuerId`
+
+**Descrição**: Retorna se o cartão provido é válido ou não.
+
+> Exemplo de requisição:
+
+```text
+url = <endpoint>/validateCard?issuerNumber=000000000000000&issuerId=
 ```
 
-> The above command returns JSON structured like this:
+**REQUISIÇÃO**:
+
+***Path***
+
+|Campo |Descrição |Formato |Obrigatório |
+|------|----------|:------:|:----------:|
+|**issuerNumber**|Número do cartão a ser validado| Number | Sim |
+|**issuerId**| Id da operadora do cartão | Number | Sim |
+
+> Exemplo de resposta:
 
 ```json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+  "valid" : true
 }
 ```
 
-This endpoint retrieves a specific kitten.
+**RESPOSTA**:
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+|Campo |Descrição |Formato|
+|------|----------|:-----:|
+|**valid**| Valor informando se o cartão provido é válido ou não | Boolean |
 
-### HTTP Request
+##2.5 Third Party Recharge
+**Caminho**: `POST <endpoint>/thirdPartyRecharge`
 
-`GET http://example.com/kittens/<ID>`
+**Descrição**: Gera uma recarga de acordo com as informações providas na requisição.
 
-### URL Parameters
+> Exemplo de requisição:
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
+```json
+{
+	"sessionToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC...",
+	"issuerId": "1",
+	"productId": "1",
+	"issuerNr": "000000000000000",
+	"amount": 2000
+}
+```
 
+**REQUISIÇÃO**
+
+***Body***
+
+|Campo |Descrição |Formato |Obrigatório
+|------|----------|:------:|:----------:|
+|**sessionToken**| Token de autenticação | String | Sim
+|**issuerId**| Id da operadora do cartão | String | Sim
+|**productId**| Id do cartão | String | Sim
+|**issuerNr**| Número do cartão a ser recarregado | String | Sim
+|**amount**| Valor em centavos a ser recarregado. Ex: "2000" para R$20,00. | Number | Sim
+
+> Exemplo de resposta
+
+```json
+{
+  "message": "Recarga efetuada com sucesso"
+}
+```
+
+**RESPOSTA**:
+
+|Campo |Descrição |Formato
+|------|----------|:-----:|
+|**message**| Mensagem informando se a recarga foi efetuada com sucesso | String
+
+
+# Anexo A - Códigos de erro
+
+|Código |Descrição |
+|-------|----------|
+|9| Token inválido |
+|10| Token expirado |
+|11| Ip inválido |
+|12| Produto não encontrado |
+|13| Amount inválido |

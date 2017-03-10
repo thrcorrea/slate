@@ -20,10 +20,15 @@ under the License.
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Dosis:300,500,700" rel=stylesheet>
     <title><%= current_page.data.title || "API Documentation" %></title>
 
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+
     <style>
-      <%= Rouge::Themes::MonokaiSublime.render(:scope => '.highlight') %>
+      <%= Rouge::Themes::Base16::Monokai.render(:scope => '.highlight') %>
     </style>
     <%= stylesheet_link_tag :screen, media: :screen %>
     <%= stylesheet_link_tag :print, media: :print %>
@@ -43,7 +48,7 @@ under the License.
     </a>
     <div class="tocify-wrapper">
       <%= image_tag "logo.png" %>
-      <% if language_tabs.any? %>
+      <% if language_tabs %>
         <div class="lang-selector">
           <% language_tabs.each do |lang| %>
             <% if lang.is_a? Hash %>
@@ -56,7 +61,7 @@ under the License.
       <% end %>
       <% if current_page.data.search %>
         <div class="search">
-          <input type="text" class="search" id="input-search" placeholder="Search">
+          <input type="text" class="search" id="input-search" placeholder="Procurar">
         </div>
         <ul class="search-results"></ul>
       <% end %>
@@ -79,7 +84,7 @@ under the License.
         <% end %>
       </div>
       <div class="dark-box">
-        <% if language_tabs.any? %>
+        <% if language_tabs %>
           <div class="lang-selector">
             <% language_tabs.each do |lang| %>
               <% if lang.is_a? Hash %>
